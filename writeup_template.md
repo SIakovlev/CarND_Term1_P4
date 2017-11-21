@@ -79,7 +79,7 @@ Here's an example of the sequential application of methods above:
 
 The original undistorted picture is on the left, next we see the result of application of `yellow_select(...)` only, then we add white color thresholding and picture on the right is the result of all thresholding methods combined together (via logical "or"). 
 
-The example for another image is given below:
+The example for another image is given below. Note that the gradient thresholding helps when the lines are in the shadow:
 
 ![alt text][image4]
 
