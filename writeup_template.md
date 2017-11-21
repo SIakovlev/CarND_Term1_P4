@@ -21,10 +21,9 @@ The goals / steps of this project are the following:
 [image6]: ./report_images/region2.jpg "Perspective transform curved"
 [image7]: ./report_images/beta.jpg "Beta"
 [image8]: ./report_images/pipeline.jpg "Pipeline"
-[image4]: ./examples/warped_straight_lines.jpg "Warp Example"
-[image5]: ./examples/color_fit_lines.jpg "Fit Visual"
-[image6]: ./examples/example_output.jpg "Output"
-[video1]: ./project_video.mp4 "Video"
+[image9]: ./report_images/pipeline_area1.jpg "Pipeline area"
+[image10]: ./report_images/pipeline_area2.jpg "Pipeline area"
+[video1]: ./video.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
@@ -156,6 +155,7 @@ The line fitting algortihm combines convolution method and method of histogramms
 
 In the formula above, b stands for brightness and numeric values are adjusted so that it gives reasonably small beta for very bright images. The graph for different values of brightness is given below:
 ![alt text][image7]
+
 This results to higher robustness with respect to a very bright part of the lane. Note, that the brightness needs to be measured for the lane image after perspective transformation, i.e:
 ```python
    b = np.mean(rgb2hsv(perspective(img), ch=2))
@@ -173,13 +173,22 @@ The procedure above gives the following resulting fit:
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+The procedure of curvature calculation is in lines 121-136 of `detect_lines_v2()` function (see `lane_finding.ipynb`).
+
+The goal is to calculate curvature of the line based on coefficients identified after least squares polinomial fit. However in order to give the answer in sensible measurement units we need to convert pixel values to meters. To find y-axis coefficient, I approximately measured the distance between two vertical lines (in perspective view) in pixels and given that the lane width is about 3.7 meters, the `ym_per_pix` value is about 3.7/750. The value for `xm_per_pix` can be identified similarly, given that the length of the dashed line is about 3 meters: we project the lane with very distinguishable dashed lines and count how many of them can fit into 720 pixels. I got about 8, so the coefficient is 24/720.
+
+```python
+# Define conversions in x and y from pixels space to meters
+ym_per_pix = 24/720 # meters per pixel in y dimension
+xm_per_pix = 3.7/750 # meters per pixel in x dimension
+```
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
 I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
 
-![alt text][image6]
+
+![alt text][image9]
 
 ---
 
