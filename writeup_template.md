@@ -204,6 +204,8 @@ Here's a [link to my video result](./project_video.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-There are different ways to improve this project. The first one is based on Hidden Markov Model for 
+There are different ways to improve this project:
+
+* Hidden Markov Model (HMM) approach for region of interest positioning. I started to think about it but due to time limitation decided to implement it a bit later. HMM approach uses the notion of states and transition probabilities between states. The idea is to treat the convolutions of image layers with window as the probability densities and different image layers as discrete states. Then the most probable path, corresponding to the line can be found using Viterbi algorithm. Also, based on probability densities we pick the points for fitting, this gives us better outlier rejection.
 
 
