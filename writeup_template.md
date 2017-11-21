@@ -135,15 +135,14 @@ This example shows the perspective transform for curved lines:
 The line fitting algortihm combines convolution method and method of histogramms described in the lessons, and based on 3 key steps:
 
 * At the start the algorithm calculates convolution of the **50px window** with the bottom half of the image. It allows to calculate positions for regions of interest (RoI) for left and right lines. Here is how I do it for the left line:
-
 ```python
    # Sum quarter bottom of image to get slice
    l_sum = np.sum(image[int(img_y/2):,:center], axis=0)
    conv_l = np.convolve(w, l_sum, 'same')
    leftx_base = np.argmax(conv_l)
 ```
-* Then it goes through the image, slice by slice ( 1 slice correspond to 1/9 of the image height ) and gather all the points that lie inside RoI. The position of the next region of iterest is calculated from the maximum of the convolution of the current region of interest. I am also filtering this parameter in order to increase robustness with respect to outliers - it helps to avoid situations when the position of the next RoI is shifted too much, that is not realistic for the monotone lane line. Here is the code, showing this idea (`alpha` - parameter of the filter):
 
+* Then it goes through the image, slice by slice ( 1 slice correspond to 1/9 of the image height ) and gather all the points that lie inside RoI. The position of the next region of iterest is calculated from the maximum of the convolution of the current region of interest. I am also filtering this parameter in order to increase robustness with respect to outliers - it helps to avoid situations when the position of the next RoI is shifted too much, that is not realistic for the monotone lane line. Here is the code, showing this idea (`alpha` - parameter of the filter):
 ```python
    img_layer = image[win_y_low:win_y_high, win_xleft_low:win_xleft_high]
    img_layer_hist = np.sum(img_layer, axis=0)
@@ -153,22 +152,16 @@ The line fitting algortihm combines convolution method and method of histogramms
 ```
 
 * Finally the algorithm fits second order polynomes to the data. In order to increase robustness I have added filtering to the identified coefficients that depend on the brightness of the current frame by the following formula:
-
 ![equation](http://latex.codecogs.com/gif.latex?%24%24%5Cbeta%20%3D%20%5Cfrac%7B0.3%7D%7B%5Csqrt%7B1&plus;0.3*%28b-90%29%5E2%7D%7D%24%24)
 
-where b stands for brightness and numeric values are adjusted so that it gives reasonably small beta for very bright images. The graph for different values of brightness is given below:
-
+In the formula above, b stands for brightness and numeric values are adjusted so that it gives reasonably small beta for very bright images. The graph for different values of brightness is given below:
 ![alt text][image7]
-
 This results to higher robustness with respect to a very bright part of the lane. Note, that the brightness needs to be measured for the lane image after perspective transformation, i.e:
-
 ```python
    b = np.mean(rgb2hsv(perspective(img), ch=2))
    beta = 0.3/np.sqrt(1+0.3*(b-90)**2)
 ```
-
 Here is the code, with filtering implemented:
-
 ```python
    left_fit = betha*np.polyfit(lefty, leftx, 2) + (1-betha)*left_fit
    right_fit = betha*np.polyfit(righty, rightx, 2) + (1-betha)*right_fit
