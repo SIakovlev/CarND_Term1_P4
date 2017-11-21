@@ -52,49 +52,69 @@ I then used the output `objpoints` and `imgpoints` to compute the camera calibra
 
 #### 1. Provide an example of a distortion-corrected image.
 
-To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
+Here is an example of image distortion correction for one of the test images:
+
 ![alt text][image2]
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-Here's an example of my output for this step.
+The main routines are in the "Image processing pipeline" sectin of `lane_finding.ipynb` file.
+
+Image thresholding is the logical disjunction (pythonic `|`) of the following:
+
+* Yellow color thresholding (`yellow_select(...)` function in the code):
+    * Convert image to HLS color space.
+    * Determine the range of H, L, and S components for yellow color: **H: 15 - 55, L: 120 - 200, S: 120 - 255.** 
+    * Threshold image based on these values 
+* White color thresholding (`white_select(...)` function in the code):
+    * Convert image to HLS color space.
+    * Determine the range of H, L, and S components for white color: **H: 0 - 360, L: 210 - 255, S: 0 - 255.** 
+    * Threshold image based on these values
+* Sobel gradient thresholding for x coordinate (`sobel_abs(...)` function in the code).
+
+Here's an example of the sequential application of methods above:
 
 ![alt text][image3]
 
+The original undistorted picture is on the left, next we see the result of application of `yellow_select(...)` only, then we add white color thresholding and picture on the right is the result of all thresholding methods combined together (via logical "or").
+
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
+The code for my perspective transform is in the function called `perspective(img, mode='f', scr=src, dst=dst):`. This function takes `img` as an input and, based on `mode`, returns inverse or forward perspective transform of this image. The source(`src`) and destination(`dst`) points were chosen in the following manner:
+
+`cv2.warpPerspective(img, M, img_size, flags=cv2.INTER_LINEAR)`
 
 ```python
-src = np.float32(
-    [[(img_size[0] / 2) - 55, img_size[1] / 2 + 100],
-    [((img_size[0] / 6) - 10), img_size[1]],
-    [(img_size[0] * 5 / 6) + 60, img_size[1]],
-    [(img_size[0] / 2 + 55), img_size[1] / 2 + 100]])
-dst = np.float32(
-    [[(img_size[0] / 4), 0],
-    [(img_size[0] / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), 0]])
+src = np.float32([[0, img_size[1]], 
+                  [575, 450],
+                  [705, 450],
+                  [img_size[0], img_size[1]]])
+dst = np.float32([[100, img_size[1]],
+                  [100, 0],
+                  [img_size[0]-100, 0], 
+                  [img_size[0]-100, img_size[1]]])
 ```
 
 This resulted in the following source and destination points:
 
-| Source        | Destination   | 
+| Source (x, y)       | Destination (x, y)  | 
 |:-------------:|:-------------:| 
-| 585, 460      | 320, 0        | 
-| 203, 720      | 320, 720      |
-| 1127, 720     | 960, 720      |
-| 695, 460      | 960, 0        |
+| (0, 720)      | (100, 720)    | 
+| (575, 450)    | (100, 0)      |
+| (705, 450)    | (1180, 0)     |
+| (1280, 720)   | (1180, 720)   |
 
-I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
+I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image. Here is an example for straight lines:
 
 ![alt text][image4]
+
+This example shows the perspective transform for curved lines:
+
 ![alt text][image5]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+
 
 ![alt text][image6]
 
