@@ -82,8 +82,6 @@ The original undistorted picture is on the left, next we see the result of appli
 
 The code for my perspective transform is in the function called `perspective(img, mode='f', scr=src, dst=dst):`. This function takes `img` as an input and, based on `mode`, returns inverse or forward perspective transform of this image. The source(`src`) and destination(`dst`) points were chosen in the following manner:
 
-`cv2.warpPerspective(img, M, img_size, flags=cv2.INTER_LINEAR)`
-
 ```python
 src = np.float32([[0, img_size[1]], 
                   [575, 450],
@@ -94,7 +92,6 @@ dst = np.float32([[100, img_size[1]],
                   [img_size[0]-100, 0], 
                   [img_size[0]-100, img_size[1]]])
 ```
-
 This resulted in the following source and destination points:
 
 | Source (x, y)       | Destination (x, y)  | 
@@ -103,6 +100,21 @@ This resulted in the following source and destination points:
 | (575, 450)    | (100, 0)      |
 | (705, 450)    | (1180, 0)     |
 | (1280, 720)   | (1180, 720)   |
+
+Then the function calculates transform matrix and applies it to the image using OpenCV routines `getPerspectiveTransform` and `cv2.warpPerspective`:
+
+```python
+def perspective(img, mode='f', scr=src, dst=dst):
+    
+    img_size = (img.shape[1], img.shape[0])
+   
+    if mode == 'f':
+        M = cv2.getPerspectiveTransform(src, dst)
+    elif mode == 'inv':
+        M = cv2.getPerspectiveTransform(dst, src)
+        
+    return cv2.warpPerspective(img, M, img_size, flags=cv2.INTER_LINEAR)
+```
 
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image. Here is an example for straight lines:
 
@@ -113,6 +125,8 @@ This example shows the perspective transform for curved lines:
 ![alt text][image5]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
+
+The line fitting is based on 4 key steps:
 
 
 
