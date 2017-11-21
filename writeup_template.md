@@ -16,9 +16,10 @@ The goals / steps of this project are the following:
 [image1]: ./report_images/calibration.jpg "Undistorted"
 [image2]: ./report_images/undistortion.jpg "Road Transformed"
 [image3]: ./report_images/thresh_bin_img.jpg "Binary Example"
-[image4]: ./report_images/region1.jpg "Perspective transform straight"
-[image5]: ./report_images/region2.jpg "Perspective transform curved"
-[image6]: ./report_images/pipeline.jpg "Pipeline"
+[image4]: ./report_images/thresh_bin_img2.jpg "Binary Example2"
+[image5]: ./report_images/region1.jpg "Perspective transform straight"
+[image6]: ./report_images/region2.jpg "Perspective transform curved"
+[image7]: ./report_images/pipeline.jpg "Pipeline"
 [image4]: ./examples/warped_straight_lines.jpg "Warp Example"
 [image5]: ./examples/color_fit_lines.jpg "Fit Visual"
 [image6]: ./examples/example_output.jpg "Output"
@@ -76,7 +77,11 @@ Here's an example of the sequential application of methods above:
 
 ![alt text][image3]
 
-The original undistorted picture is on the left, next we see the result of application of `yellow_select(...)` only, then we add white color thresholding and picture on the right is the result of all thresholding methods combined together (via logical "or").
+The original undistorted picture is on the left, next we see the result of application of `yellow_select(...)` only, then we add white color thresholding and picture on the right is the result of all thresholding methods combined together (via logical "or"). 
+
+The example for another image is given below:
+
+![alt text][image4]
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
@@ -118,11 +123,11 @@ def perspective(img, mode='f', scr=src, dst=dst):
 
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image. Here is an example for straight lines:
 
-![alt text][image4]
+![alt text][image5]
 
 This example shows the perspective transform for curved lines:
 
-![alt text][image5]
+![alt text][image6]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
@@ -130,7 +135,7 @@ The line fitting is based on 4 key steps:
 
 
 
-![alt text][image6]
+![alt text][image7]
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
