@@ -204,8 +204,15 @@ Here's a [link to my video result](./project_video.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
+Drawbacks of the current implementation:
+
+* Gradient thresholding. Since the algortihm uses sobel gradient thresholding, it is sensitive to the fake lines on the road.
+* Color dependence. In general any road lines have yellow or white color, but the algorithm is sensitive to bright and dark parts of the image anyway. In the current realisation I automatically decrease the filtering constant, but there should be better solution.
+* Another drawback of the current solution is the need for properly chosen coordinates for perspective transformation. Also it assumes the flat road which is not always the case.
+* The algortihm will have problems when there are many cars on the road in front of our car (i.e. traffic jam situation).
+
 There are different ways to improve this project:
 
-* Hidden Markov Model (HMM) approach for region of interest positioning. I started to think about it but due to time limitation decided to implement it a bit later. HMM approach uses the notion of states and transition probabilities between states. The idea is to treat the convolutions of image layers with window as the probability densities and different image layers as discrete states. Then the most probable path, corresponding to the line can be found using Viterbi algorithm. Also, based on probability densities we pick the points for fitting, this gives us better outlier rejection.
+* Hidden Markov Model (HMM) approach for region of interest positioning. I started to think about it but due to time limitation decided to implement it a bit later. HMM approach uses the notion of states and transition probabilities between states. The idea is to treat the convolutions of image layers with window as the probability densities and different image layers as discrete states. Then the most probable path, corresponding to the line can be found using Viterbi algorithm. Also, based on probability densities we pick the points for fitting, this gives us better outlier rejection. The disadvantage here is the computational complexity that can be regulated by the number of (states) image layers.
 
-
+* Adaptive thresholding. For example gradient is not useful if the image is very bright or dark, as well as S channel of HLS color space allows distinguishing lines on bright images, but requires threshold readjustment. It might be a good idea to make it dependant on image brightness.
