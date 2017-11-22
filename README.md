@@ -1,5 +1,7 @@
 # CarND_Term1_P4
 
+Advanced Line Finding Project
+
 * `lane_finding.ipynb` - Jupyter file with the source code
 * `video.mp4` - algorithm output video
 * `writeup.md` - report
