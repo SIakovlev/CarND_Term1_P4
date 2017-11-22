@@ -79,7 +79,7 @@ Here's an example of the sequential application of methods above:
 
 The original undistorted picture is on the left, next we see the result of application of `yellow_select(...)` only, then we add white color thresholding and picture on the right is the result of all thresholding methods combined together (via logical "or"). 
 
-The example for another image is given below. Note that the gradient thresholding helps when the lines are in the shadow:
+The example for another image is given below. Note that the gradient thresholding helps when the lines are under the shadow:
 
 ![alt text][image4]
 
@@ -153,7 +153,7 @@ The line fitting algortihm combines convolution method and method of histogramms
 * Finally the algorithm fits second order polynomes to the data. In order to increase robustness I have added filtering to the identified coefficients that depend on the brightness of the current frame by the following formula:
 ![equation](http://latex.codecogs.com/gif.latex?%24%24%5Cbeta%20%3D%20%5Cfrac%7B0.3%7D%7B%5Csqrt%7B1&plus;0.3*%28b-90%29%5E2%7D%7D%24%24)
 
-In the formula above, b stands for brightness and numeric values are adjusted so that it gives reasonably small beta for very bright images. The graph for different values of brightness is given below:
+In the formula above, b stands for brightness (mean value of V channel in HSV color space) and numeric values are adjusted so that it gives reasonably small beta for very bright images. The graph for different values of brightness is given below (normal brightness is about 90):
 ![alt text][image7]
 
 This results to higher robustness with respect to a very bright part of the lane. Note, that the brightness needs to be measured for the lane image after perspective transformation, i.e:
@@ -186,7 +186,6 @@ xm_per_pix = 3.7/750 # meters per pixel in x dimension
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
 I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
-
 
 ![alt text][image9]
 
