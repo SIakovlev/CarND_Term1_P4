@@ -23,6 +23,8 @@ The goals / steps of this project are the following:
 [image8]: ./report_images/pipeline.jpg "Pipeline"
 [image9]: ./report_images/pipeline_area1.jpg "Pipeline area"
 [image10]: ./report_images/pipeline_area2.jpg "Pipeline area"
+[image11]: ./report_images/pipeline1_3.jpg "Pipeline 1-3"
+[image12]: ./report_images/pipeline4_6.jpg "Pipeline 4-6"
 [video1]: ./video.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
@@ -196,6 +198,11 @@ I implemented this step in lines # through # in my code in `yet_another_file.py`
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
 Here's a [link to my video result](./project_video.mp4)
+
+The images for each stage of the pipeline are provided below:
+
+![alt text][image11]
+![alt text][image12]
 
 ---
 
