@@ -148,7 +148,25 @@ The line fitting algortihm combines convolution method and method of histogramms
    leftx_current = np.int(alpha*mean + (1-alpha)*leftx_current)
 ```
 
-* Finally the algorithm fits second order polynomes to the data. I have added [exponential smoothing](https://www.wikiwand.com/en/Exponential_smoothing) in order to increase robustness against noise:
+* Finally the algorithm fits second order polynomes to the data. However instead of `np.polyfit()` I decided to write my own function that does least squares fit with [regularisation](https://see.stanford.edu/materials/lsoeldsee263/07-ls-reg.pdf) - `fit2_rls(x, y, lam)`, where parameter `lam` defines the strength of regularisation. Using the regularisation allows introducing additional constraints to our problem, i.e. if A is our data matrix and y is the vector of measurements and we want to find x, such that ||Ax - y||^2 is minimised (the original formulation of data fitting problem), we can require some components of x to satisfy certain conditions. In the fitting problem, our x consists of 3 elements, and we know that the element corresponding to x^2 cannot be very large, otherwise the fitted curve would have very high curvature, which is impractical for roads (at least for roads on the provided videos). Here is the code that does it:
+
+```python
+def fit2_rls(x, y, lam):
+    # the regularised problem looks like min||Ax-y||+||Bx - g||
+    # here we rewrite it in the matrix form
+    x = np.array(x)
+    y = np.array(y)
+    # add component to y (since in our case g = 0)
+    y = np.concatenate((y, np.array([0])))
+    # construct matrix A
+    A = np.array([np.ones(x.shape[0]), x, x**2])
+    # append matrix B = np.array([0, 0, lam]) in our case
+    A = np.vstack((A, np.array([0, 0, lam])))
+    # get the estimate and return it in the reversed order
+    est = np.linalg.lstsq(a=A, b=y)[0]
+    return est[::-1
+```
+Another reason to use regularisation is bad conditioning of fitting problem - i.e. it is quite sensitive to noise in the data. Alos I have added [exponential smoothing](https://www.wikiwand.com/en/Exponential_smoothing) in order to increase robustness against detection errors:
 
 ```python
    left_fit = betha*np.polyfit(lefty, leftx, 2) + (1-betha)*left_fit
