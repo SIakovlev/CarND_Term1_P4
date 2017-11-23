@@ -65,10 +65,9 @@ The main routines are in the "Image processing pipeline" sectin of `lane_finding
 
 Image thresholding is the logical disjunction (pythonic `|`) of the following:
 
-* Yellow color thresholding (`yellow_select(...)` function in the code):
-    * Convert image to HLS color space.
-    * Determine the range of H, L, and S components for yellow color: **H: 15 - 55, L: 120 - 200, S: 120 - 255.** 
-    * Threshold image based on these values 
+* LAB color space turned out to be very good for yellow color thresholding, so the steps are the following (`channel_thresholding(rgb2lab(img), ch=2, thresh=(150, 255))` function in the code):
+    * Convert image to LAB color space.
+    * Threshold image based on B channel values: **H: 150 - 255**
 * White color thresholding (`white_select(...)` function in the code):
     * Convert image to HLS color space.
     * Determine the range of H, L, and S components for white color: **H: 0 - 360, L: 210 - 255, S: 0 - 255.** 
@@ -80,10 +79,6 @@ Here's an example of the sequential application of methods above:
 ![alt text][image3]
 
 The original undistorted picture is on the left, next we see the result of application of `yellow_select(...)` only, then we add white color thresholding and picture on the right is the result of all thresholding methods combined together (via logical "or"). 
-
-The example for another image is given below. Note that the gradient thresholding helps when the lines are under the shadow:
-
-![alt text][image4]
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
@@ -144,6 +139,7 @@ The line fitting algortihm combines convolution method and method of histogramms
 ```
 
 * Then it goes through the image, slice by slice ( 1 slice correspond to 1/9 of the image height ) and gather all the points that lie inside RoI. The position of the next region of iterest is calculated from the maximum of the convolution of the current region of interest. I am also filtering this parameter in order to increase robustness with respect to outliers - it helps to avoid situations when the position of the next RoI is shifted too much, that is not realistic for the monotone lane line. Here is the code, showing this idea (`alpha` - parameter of the filter):
+
 ```python
    img_layer = image[win_y_low:win_y_high, win_xleft_low:win_xleft_high]
    img_layer_hist = np.sum(img_layer, axis=0)
@@ -152,18 +148,8 @@ The line fitting algortihm combines convolution method and method of histogramms
    leftx_current = np.int(alpha*mean + (1-alpha)*leftx_current)
 ```
 
-* Finally the algorithm fits second order polynomes to the data. In order to increase robustness I have added filtering to the identified coefficients that depend on the brightness of the current frame by the following formula:
-![equation](http://latex.codecogs.com/gif.latex?%24%24%5Cbeta%20%3D%20%5Cfrac%7B0.3%7D%7B%5Csqrt%7B1&plus;0.3*%28b-90%29%5E2%7D%7D%24%24)
+* Finally the algorithm fits second order polynomes to the data. I have added [exponential smoothing](https://www.wikiwand.com/en/Exponential_smoothing) in order to increase robustness against noise:
 
-In the formula above, b stands for brightness (mean value of V channel in HSV color space) and numeric values are adjusted so that it gives reasonably small beta for very bright images. The graph for different values of brightness is given below (normal brightness is about 90):
-![alt text][image7]
-
-This results to higher robustness with respect to a very bright part of the lane. Note, that the brightness needs to be measured for the lane image after perspective transformation, i.e:
-```python
-   b = np.mean(rgb2hsv(perspective(img), ch=2))
-   beta = 0.3/np.sqrt(1+0.3*(b-90)**2)
-```
-Here is the code, with filtering implemented:
 ```python
    left_fit = betha*np.polyfit(lefty, leftx, 2) + (1-betha)*left_fit
    right_fit = betha*np.polyfit(righty, rightx, 2) + (1-betha)*right_fit
@@ -175,7 +161,7 @@ The procedure above gives the following resulting fit:
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-The procedure of curvature calculation is in lines 121-136 of `detect_lines_v2()` function (see `lane_finding.ipynb`).
+The procedure of curvature calculation is in lines 121-136 of `detect_lines()` function (see `lane_finding.ipynb`).
 
 The goal is to calculate curvature of the line based on coefficients identified after least squares polinomial fit. However in order to give the answer in sensible measurement units we need to convert pixel values to meters. To find y-axis coefficient, I approximately measured the distance between two vertical lines (in perspective view) in pixels and given that the lane width is about 3.7 meters, the `ym_per_pix` value is about 3.7/750. The value for `xm_per_pix` can be identified similarly, given that the length of the dashed line is about 3 meters: we project the lane with very distinguishable dashed lines and count how many of them can fit into 720 pixels. I got about 8, so the coefficient is 24/720.
 
