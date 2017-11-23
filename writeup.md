@@ -19,7 +19,6 @@ The goals / steps of this project are the following:
 [image4]: ./report_images/thresh_bin_img2.jpg "Binary Example2"
 [image5]: ./report_images/region1.jpg "Perspective transform straight"
 [image6]: ./report_images/region2.jpg "Perspective transform curved"
-[image7]: ./report_images/beta.jpg "Beta"
 [image8]: ./report_images/pipeline.jpg "Pipeline"
 [image9]: ./report_images/pipeline_area1.jpg "Pipeline area"
 [image10]: ./report_images/pipeline_area2.jpg "Pipeline area"
