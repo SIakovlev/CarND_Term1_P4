@@ -21,7 +21,6 @@ The goals / steps of this project are the following:
 [image6]: ./report_images/region2.jpg "Perspective transform curved"
 [image8]: ./report_images/pipeline.jpg "Pipeline"
 [image9]: ./report_images/pipeline_area1.jpg "Pipeline area"
-[image10]: ./report_images/pipeline_area2.jpg "Pipeline area"
 [image11]: ./report_images/pipeline1_3.jpg "Pipeline 1-3"
 [image12]: ./report_images/pipeline4_6.jpg "Pipeline 4-6"
 [video1]: ./video.mp4 "Video"
@@ -137,7 +136,7 @@ The line fitting algortihm combines convolution method and method of histogramms
    leftx_base = np.argmax(conv_l)
 ```
 
-* Then it goes through the image, slice by slice ( 1 slice correspond to 1/9 of the image height ) and gather all the points that lie inside RoI. The position of the next region of iterest is calculated from the maximum of the convolution of the current region of interest. I am also filtering this parameter in order to increase robustness with respect to outliers - it helps to avoid situations when the position of the next RoI is shifted too much, that is not realistic for the monotone lane line. Here is the code, showing this idea (`alpha` - parameter of the filter):
+* Then it goes through the image, slice by slice ( 1 slice correspond to 1/9 of the image height ) and gather all the points that lie inside RoI (function `detect_lines()`). The position of the next region of iterest is calculated from the maximum of the convolution of the current region of interest. I am also filtering this parameter in order to increase robustness with respect to outliers - it helps to avoid situations when the position of the next RoI is shifted too much, that is not realistic for the monotone lane line. Here is the code, showing this idea (`alpha` - parameter of the filter):
 
 ```python
    img_layer = image[win_y_low:win_y_high, win_xleft_low:win_xleft_high]
@@ -146,6 +145,8 @@ The line fitting algortihm combines convolution method and method of histogramms
    mean = np.argmax(conv_left) + win_xleft_low
    leftx_current = np.int(alpha*mean + (1-alpha)*leftx_current)
 ```
+
+After lines are detected I use the fitting data to recalculate the RoI position at the next video frame. It is implemented in the function called `line_search()`
 
 * Finally the algorithm fits second order polynomes to the data. However instead of `np.polyfit()` I decided to write my own function that does least squares fit with [regularisation](https://see.stanford.edu/materials/lsoeldsee263/07-ls-reg.pdf) - `fit2_rls(x, y, lam)`, where parameter `lam` defines the strength of regularisation. Using the regularisation allows introducing additional constraints to our problem, i.e. if A is our data matrix and y is the vector of measurements and we want to find x, such that ||Ax - y||^2 is minimised (the original formulation of data fitting problem), we can require some components of x to satisfy certain conditions. In the fitting problem, our x consists of 3 elements, and we know that the element corresponding to x^2 cannot be very large, otherwise the fitted curve would have very high curvature, which is impractical for roads (at least for roads on the provided videos). Here is the code that does it:
 
@@ -165,7 +166,7 @@ def fit2_rls(x, y, lam):
     est = np.linalg.lstsq(a=A, b=y)[0]
     return est[::-1
 ```
-Another reason to use regularisation is bad conditioning of fitting problem - i.e. it is quite sensitive to noise in the data. Alos I have added [exponential smoothing](https://www.wikiwand.com/en/Exponential_smoothing) in order to increase robustness against detection errors:
+Another reason to use regularisation is bad conditioning of fitting problem - i.e. it is quite sensitive to noise in the data. Also I have added [exponential smoothing](https://www.wikiwand.com/en/Exponential_smoothing) in order to increase robustness against detection errors:
 
 ```python
    left_fit = betha*np.polyfit(lefty, leftx, 2) + (1-betha)*left_fit
@@ -186,6 +187,11 @@ The goal is to calculate curvature of the line based on coefficients identified 
 # Define conversions in x and y from pixels space to meters
 ym_per_pix = 24/720 # meters per pixel in y dimension
 xm_per_pix = 3.7/750 # meters per pixel in x dimension
+```
+For the position identification I do a simple calculation that gives me offset of the vehicle in meters:
+
+```python
+offset = ((right_line_bottom + left_line_bottom)/2 - center)*xm_per_pix
 ```
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
